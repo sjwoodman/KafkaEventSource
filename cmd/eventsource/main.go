@@ -9,15 +9,13 @@ import (
 	"os/signal"
 
 	"github.com/Shopify/sarama"
-	"github.com/matzew/kafka-receiver/pkg/config"
+	"github.com/rh-event-flow-incubator/KafkaEventSource/pkg/config"
 )
 
 func main() {
 
 	//Setup the input
 	config := config.GetConfig()
-	config.BootStrapServers = os.Getenv("BOOTSTRAP_SERVERS")
-	config.KafkaTopic = os.Getenv("TOPIC")
 
 	log.Printf("BOOTSTRAP_SERVERS: %s", config.BootStrapServers)
 
@@ -56,8 +54,8 @@ ConsumerLoop:
 		case msg := <-partitionConsumer.Messages():
 
 			//Call the Serving function
-			req, err := http.NewRequest("POST", os.Getenv("TARGET"), bytes.NewBuffer(msg.Value))
-			req.Host = os.Getenv("HOST")
+			req, err := http.NewRequest("POST", config.Target, bytes.NewBuffer(msg.Value))
+			req.Host = config.Host
 
 			client := &http.Client{}
 			resp, err := client.Do(req)

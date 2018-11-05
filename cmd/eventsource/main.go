@@ -1,14 +1,16 @@
 package main
 
 import (
-	"bytes"
-	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/Shopify/sarama"
+	"github.com/google/uuid"
+	"github.com/knative/pkg/cloudevents"
 	"github.com/rh-event-flow-incubator/KafkaEventSource/pkg/config"
 )
 
@@ -53,23 +55,48 @@ ConsumerLoop:
 		select {
 		case msg := <-partitionConsumer.Messages():
 
-			//Call the Serving function
-			req, err := http.NewRequest("POST", config.Target, bytes.NewBuffer(msg.Value))
-			req.Host = config.Host
-
-			client := &http.Client{}
-			resp, err := client.Do(req)
-			if err != nil {
-				log.Printf("Error sending to Serving function: %s", err)
-			}
-
-			defer resp.Body.Close()
-
-			fmt.Println("response Status:", resp.Status)
-			fmt.Println("response Headers:", resp.Header)
+			postMessage(config.Target, msg.Value)
 
 		case <-signals:
 			break ConsumerLoop
 		}
 	}
+}
+
+// Creates a CloudEvent Context for a given Kafka ConsumerMessage.
+func cloudEventsContext() *cloudevents.EventContext {
+	return &cloudevents.EventContext{
+		CloudEventsVersion: cloudevents.CloudEventsVersion,
+		EventType:          "dev.knative.source.kafka",
+		EventID:            uuid.New().String(),
+		Source:             "kafka-demo",
+		EventTime:          time.Now(),
+	}
+}
+
+func postMessage(target string, value []byte) error {
+
+	ctx := cloudEventsContext()
+
+	log.Printf("posting to %q", target)
+	// Explicitly using Binary encoding so that Istio, et. al. can better inspect
+	// event metadata.
+	req, err := cloudevents.Binary.NewRequest(target, value, *ctx)
+	if err != nil {
+		log.Printf("failed to create http request: %s", err)
+		return err
+	}
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Printf("Failed to do POST: %v", err)
+		return err
+	}
+	defer resp.Body.Close()
+	log.Printf("response Status: %s", resp.Status)
+	body, _ := ioutil.ReadAll(resp.Body)
+	log.Printf("response Body: %s", string(body))
+	return nil
+
 }

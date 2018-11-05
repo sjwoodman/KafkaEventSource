@@ -19,7 +19,6 @@ func GetConfig() config {
 		BootStrapServers: strings.ToLower(getEnv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")),
 		KafkaTopic:       os.Getenv("KAFKA_TOPIC"),
 		Target:           os.Getenv("TARGET"),
-		Host:             os.Getenv("HOST"),
 		LogLevel:         strings.ToLower(getEnv("LOG_LEVEL", "info")),
 		LogFormat:        strings.ToLower(getEnv("LOG_FORMAT", "text")), //cann be text or json
 	}

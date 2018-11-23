@@ -27,13 +27,29 @@ func main() {
 	config.Group.Return.Notifications = true
 
 	//SASL config
-	config.Net.SASL.Enable = eventsourceconfig.Saslconfig.Enable
-	config.Net.SASL.Handshake = eventsourceconfig.Saslconfig.Handshake
-	config.Net.SASL.User = eventsourceconfig.Saslconfig.User
-	config.Net.SASL.Password = eventsourceconfig.Saslconfig.Password
+	config.Net.MaxOpenRequests = int(eventsourceconfig.NetMaxOpenRequests)
+	config.Net.KeepAlive = time.Duration(eventsourceconfig.NetKeepAlive)
+	config.Net.SASL.Enable = eventsourceconfig.NetSaslEnable
+	config.Net.SASL.Handshake = eventsourceconfig.NetSaslHandshake
+	config.Net.SASL.User = eventsourceconfig.NetSaslUser
+	config.Net.SASL.Password = eventsourceconfig.NetSaslPassword
+	config.Consumer.MaxWaitTime = time.Duration(eventsourceconfig.ConsumerMaxWaitTime)
+	config.Consumer.MaxProcessingTime = time.Duration(eventsourceconfig.ConsumerMaxProcessingTime)
+	config.Consumer.Offsets.CommitInterval = time.Duration(eventsourceconfig.ConsumerOffsetsCommitInterval)
+	config.Consumer.Offsets.Retention = time.Duration(eventsourceconfig.ConsumerOffsetsRetention)
+	config.Consumer.Offsets.Retry.Max = int(eventsourceconfig.ConsumerOffsetsRetrymax)
+	config.ChannelBufferSize = int(eventsourceconfig.ChannelBufferSize)
+	config.Group.Session.Timeout = time.Duration(eventsourceconfig.GroupSessionTimeout)
 
-	//todo
 	config.Consumer.Offsets.Initial = sarama.OffsetNewest
+	if eventsourceconfig.ConsumerOffsetsInitial == "OffsetOldest" {
+		config.Consumer.Offsets.Initial = sarama.OffsetOldest
+	}
+
+	config.Group.PartitionStrategy = cluster.StrategyRange
+	if eventsourceconfig.GroupPartitionStrategy == "roundrobin" {
+		config.Group.PartitionStrategy = cluster.StrategyRoundRobin
+	}
 
 	// init consumer
 	brokers := []string{eventsourceconfig.BootStrapServers}

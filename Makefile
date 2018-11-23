@@ -1,7 +1,7 @@
 BINARY ?= kafkaeventsource
 APP_NAME = kafkaeventsource
-DOCKER_LATEST_TAG = docker.io/sjwoodman/$(APP_NAME):latest
-DOCKER_MASTER_TAG = docker.io/sjwoodman/$(APP_NAME):master
+DOCKER_LATEST_TAG = sjwoodman/$(APP_NAME):latest
+DOCKER_MASTER_TAG = sjwoodman/$(APP_NAME):master
 RELEASE_TAG ?= $(CIRCLE_TAG)
 DOCKER_RELEASE_TAG = sjwoodman/$(APP_NAME):$(RELEASE_TAG)
 
@@ -34,7 +34,7 @@ docker_build_master:
 
 .PHONY: docker_push_latest
 docker_push_latest:
-	@docker login -u $(DOCKERHUB_USERNAME) -p $(DOCKERHUB_PASSWORD)
+	# @docker login -u $(DOCKERHUB_USERNAME) -p $(DOCKERHUB_PASSWORD)
 	docker push $(DOCKER_LATEST_TAG)
 
 .PHONY: docker_push_master

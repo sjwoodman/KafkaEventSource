@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -8,7 +9,6 @@ import (
 	"os"
 	"os/signal"
 	"time"
-	"encoding/json"
 
 	"github.com/Shopify/sarama"
 	cluster "github.com/bsm/sarama-cluster"
@@ -89,16 +89,16 @@ func main() {
 				fmt.Fprintf(os.Stdout, "%s/%d/%d\t%s\t%s\n", msg.Topic, msg.Partition, msg.Offset, msg.Key, msg.Value)
 				log.Printf("Received %s", msg.Value)
 
-				log.Println("1")
+				log.Println("2")
 
 				var raw map[string]interface{}
 				err := json.Unmarshal(msg.Value, &raw)
-				if (err != nil){
-					postMessage(eventsourceconfig.Target, msg.Value)	
-				}else{
+				if err != nil {
+					postMessage(eventsourceconfig.Target, msg.Value)
+				} else {
 					postMessage(eventsourceconfig.Target, raw)
 				}
-				
+
 				consumer.MarkOffset(msg, "") // mark message as processed
 			}
 		case <-signals:

@@ -94,6 +94,8 @@ func (r *ReconcileKafkaEventSource) InjectConfig(c *rest.Config) error {
 func (r *ReconcileKafkaEventSource) Reconcile(request reconcile.Request) (reconcile.Result, error) {
 	log.Printf("Reconciling KafkaEventSource %s/%s\n", request.Namespace, request.Name)
 
+	log.Println("Monday 3rd")
+
 	// Fetch the KafkaEventSource
 	kafkaEventSource := &sourcesv1alpha1.KafkaEventSource{}
 
@@ -112,8 +114,10 @@ func (r *ReconcileKafkaEventSource) Reconcile(request reconcile.Request) (reconc
 	//Resolve the SinkURI
 	sinkURI := "Not found"
 	sinkURI, err = sinks.GetSinkURI(r.dynamicClient, kafkaEventSource.Spec.Sink, kafkaEventSource.Namespace)
+	log.Printf("Resolved SinkURI to %s\n", sinkURI)
 
 	if kafkaEventSource.Status.SinkURI != sinkURI {
+		log.Printf("Setting the SinkURI to %s\n", sinkURI)
 		kafkaEventSource.Status.SinkURI = sinkURI
 		err = r.client.Update(context.TODO(), kafkaEventSource)
 		if err != nil {

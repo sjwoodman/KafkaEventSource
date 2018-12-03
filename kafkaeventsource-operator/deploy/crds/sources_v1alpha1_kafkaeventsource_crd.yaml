@@ -50,10 +50,6 @@ spec:
               type: array
             sinkUri:
               type: string
-            nodes:
-              type: array
-              items: 
-                type: string
           type: object
       type: object
   version: v1alpha1

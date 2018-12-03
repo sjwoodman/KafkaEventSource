@@ -38,3 +38,11 @@ rules:
   - '*'
   verbs:
   - '*'
+- apiGroups:
+  - eventing.knative.dev
+  resources:
+  - channels
+  verbs:
+  - get
+  - list
+  - watch

@@ -53,14 +53,10 @@ The sample connects to a [Strimzi](http://strimzi.io/quickstarts/okd/) Kafka Bro
 1. Create a KafkaEventSource and wire it up to a function. Either
 
     ```bash
-    ko apply -f sample/deploy.yaml
-
-    #or
-
     kubectl create -f sample/01-channel.yaml
     kubectl create -f sample/02-eventsource.yaml
-    ko apply -f sample/03-service.yaml
-    kubectl create -f sample/subscription.yaml
+    kubectl apply -f sample/03-service.yaml -n myproject
+    kubectl create -f sample/subscription.yaml -n myproject
     ```
 
 1. Verify that the EventSource has been started

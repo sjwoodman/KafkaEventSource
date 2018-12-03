@@ -237,16 +237,16 @@
   version = "v1.1.5"
 
 [[projects]]
-  digest = "1:53e40b23fba4376e81d7fd6d5010e6f660249e3acb7d6b8c03f14902b3c7f12d"
+  digest = "1:0879e01697f97e46dfe61b98fda78fb1547cbb662b094c3f711e3506f4aeeae8"
   name = "github.com/knative/eventing-sources"
   packages = ["pkg/controller/sinks"]
   pruneopts = "NT"
-  revision = "54f5b5d58bff68ab52dd16bdc1593be82d6e8e74"
-  version = "v0.2.0"
+  revision = "9741f15a707d622f385ef3af7cb5e1141a70ddf2"
+  version = "v0.2.1"
 
 [[projects]]
   branch = "master"
-  digest = "1:8335c9f5cea7d488273f172f063d7abc8b62271cfd78baa6054acdd2f229701d"
+  digest = "1:dd34910d169e06de7f36fb1239ec2b16302e2a583b8ac45e8d14b71e80f7f8f7"
   name = "github.com/knative/pkg"
   packages = [
     "apis",
@@ -254,7 +254,7 @@
     "apis/duck/v1alpha1",
   ]
   pruneopts = "NT"
-  revision = "acfd173abd8d2063ddceedb3487599f97ac93db8"
+  revision = "e54498d978106a19b2ae745341d6cce3d0c7abed"
 
 [[projects]]
   branch = "master"
@@ -294,11 +294,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:0d00888f3a9fc3e98000280cbcfc47c5173fabb331b836a48f53cc76545faa12"
+  digest = "1:7ff3b459dcdc51d3bbb9da9e52405bebc5a9f5f15051fcac4061f4006a409203"
   name = "github.com/operator-framework/operator-sdk"
   packages = ["version"]
   pruneopts = "NT"
-  revision = "28401acc96452170cbe3d3fffcbb5a9a2b75dd64"
+  revision = "ad7983e9c9bc8f8b01c00b0f77008613d53e5872"
 
 [[projects]]
   digest = "1:93b1d84c5fa6d1ea52f4114c37714cddd84d5b78f151b62bb101128dd51399bf"
@@ -365,15 +365,15 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e3833763dfbc6bcaba675ecfd86e392eff386f227675688983e69019cde6a188"
+  digest = "1:d6d3b59b8c4ceb6a7db2f20169719e57a8dcfa2c055b4418feb3fcc7bbd1a936"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
   pruneopts = "NT"
-  revision = "9eb0be3963eaeb646c9a9b6d11f3da2b249bb2ca"
+  revision = "505ab145d0a99da450461ae2c1a9f6cd10d1f447"
 
 [[projects]]
   branch = "master"
-  digest = "1:d103910996bb5cd0c1cdbae00f22238e8f136ba70e70c242fcc28c400f2b2c75"
+  digest = "1:b39fe73cabf4ae7600e25b0d116bb884a52d475e019bf583d03c08d98a567350"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -384,11 +384,11 @@
     "idna",
   ]
   pruneopts = "NT"
-  revision = "adae6a3d119ae4890b46832a2e88a95adc62b8e7"
+  revision = "351d144fa1fc0bd934e2408202be0c29f25e35a0"
 
 [[projects]]
   branch = "master"
-  digest = "1:d25e419b2334aeb766bd3ed55ad61c9e85f82a46b53fc38d31ce909252dab20a"
+  digest = "1:b104eb779b471fa46d18455d05ea0e76f6b0eb7ae276d6cf3a040329eeb6c53f"
   name = "golang.org/x/oauth2"
   packages = [
     ".",
@@ -398,18 +398,18 @@
     "jwt",
   ]
   pruneopts = "NT"
-  revision = "8f65e3013ebad444f13bc19536f7865efc793816"
+  revision = "28207608b83849a028d4f12e46533a6b6894ecaf"
 
 [[projects]]
   branch = "master"
-  digest = "1:478c51e86c9a8a3681d8ab60317e1f9115e805c3288a08d9cecef33a5dda1c94"
+  digest = "1:66a3cf9ee70cf9ce968052c541fde7f9b67b7eda427fae59f1714cb96c49f516"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "NT"
-  revision = "62eef0e2fa9b2c385f7b2778e763486da6880d37"
+  revision = "4ed8d59d0b35e1e29334a206d1b3f38b1e5dfb31"
 
 [[projects]]
   digest = "1:8c74f97396ed63cc2ef04ebb5fc37bb032871b8fd890a25991ed40974b00cd2a"
@@ -445,7 +445,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:47efe3ab270e3717dd484f66108933f799a12c13dd4aa54fc88036d12ccaf957"
+  digest = "1:eb72381589581ca60f9c0ee0c140f734ddcd5d097d38ddc74c237d13d5751814"
   name = "golang.org/x/tools"
   packages = [
     "go/ast/astutil",
@@ -454,7 +454,7 @@
     "internal/gopathwalk",
   ]
   pruneopts = "NT"
-  revision = "04b5d21e00f1f47bd824a6ade581e7189bacde87"
+  revision = "d0ca3933b724e6be513276cc2edb34e10d667438"
 
 [[projects]]
   digest = "1:2a4972ee51c3b9dfafbb3451fa0552e7a198d9d12c721bfc492050fe2f72e0f6"
@@ -484,12 +484,12 @@
   version = "v0.9.1"
 
 [[projects]]
-  digest = "1:7c95b35057a0ff2e19f707173cc1a947fa43a6eb5c4d300d196ece0334046082"
+  digest = "1:18108594151654e9e696b27b181b953f9a90b16bf14d253dd1b397b025a1487f"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
   pruneopts = "NT"
-  revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
-  version = "v2.2.1"
+  revision = "51d6538a90f86fe93ac480b35f37b2be17fef232"
+  version = "v2.2.2"
 
 [[projects]]
   digest = "1:f11e5753e619f411a51a49d60d39b2bc4da6766f5f0af2e2291daa6a3d9385d5"
@@ -765,8 +765,6 @@
   analyzer-version = 1
   input-imports = [
     "github.com/knative/eventing-sources/pkg/controller/sinks",
-    "github.com/knative/pkg/apis/duck",
-    "github.com/knative/pkg/apis/duck/v1alpha1",
     "github.com/operator-framework/operator-sdk/version",
     "k8s.io/api/apps/v1",
     "k8s.io/api/core/v1",

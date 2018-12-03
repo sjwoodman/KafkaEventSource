@@ -37,14 +37,14 @@ type KafkaEventSourceSpec struct {
 	Bootstrap string `json:"bootstrap"`
 	Topic     string `json:"topic"`
 	//+optional
-	ConsumerGroupID string `json:"consumerGroupID"`
+	ConsumerGroupID *string `json:"consumerGroupID"`
 	//+optional
 	Net KafkaEventSourceNet `json:"net,omitempty"`
 	//+optional
 	Consumer KafkaEventSourceConsumer `json:"consumer,omitempty"`
 
 	//+optional
-	ChannelBufferSize int64 `json:"channelBufferSize,omitempty"`
+	ChannelBufferSize *int64 `json:"channelBufferSize,omitempty"`
 
 	//+optional
 	Group KafkaEventSourceGroup `json:"group,omitempty"`
@@ -54,15 +54,15 @@ type KafkaEventSourceSpec struct {
 	Sink *corev1.ObjectReference `json:"sink,omitempty"`
 
 	//+optional
-	Replicas int32 `json:"replicas,omitempty"`
+	Replicas *int32 `json:"replicas,omitempty"`
 }
 
 //KafkaEventSourceConsumer defines consumer related properties
 type KafkaEventSourceConsumer struct {
 	// +optional
-	MaxWaitTime int64 `json:"maxWaitTime,omitempty"`
+	MaxWaitTime *int64 `json:"maxWaitTime,omitempty"`
 	// +optional
-	MaxProcessingTime int64 `json:"maxProcessingTime,omitempty"`
+	MaxProcessingTime *int64 `json:"maxProcessingTime,omitempty"`
 	// +optional
 	Offsets KafkaEventSourceOffsets `json:"offsets,omitempty"`
 }
@@ -70,11 +70,11 @@ type KafkaEventSourceConsumer struct {
 //KafkaEventSourceOffsets offsets information
 type KafkaEventSourceOffsets struct {
 	//+optional
-	CommitInterval int64 `json:"commitInterval,omitempty"`
+	CommitInterval *int64 `json:"commitInterval,omitempty"`
 	//+optional
-	InitialOffset string `json:"initial,omitempty"`
+	InitialOffset *string `json:"initial,omitempty"`
 	//+optional
-	Retention int64 `json:"retention,omitempty"`
+	Retention *int64 `json:"retention,omitempty"`
 	//+optional
 	Retry KafkaEventSourceRetry `json:"retry,omitempty"`
 }
@@ -82,13 +82,13 @@ type KafkaEventSourceOffsets struct {
 //KafkaEventSourceRetry retry information
 type KafkaEventSourceRetry struct {
 	//+optional
-	Max int64 `json:"max,omitempty"`
+	Max *int64 `json:"max,omitempty"`
 }
 
 //KafkaEventSourceGroup group information
 type KafkaEventSourceGroup struct {
 	//+optional
-	PartitionStrategy string `json:"partitionStrategy,omitempty"`
+	PartitionStrategy *string `json:"partitionStrategy,omitempty"`
 	//+optional
 	Session KafkaEventSourceSession `json:"session,omitempty"`
 }
@@ -96,13 +96,13 @@ type KafkaEventSourceGroup struct {
 //KafkaEventSourceSession session information
 type KafkaEventSourceSession struct {
 	//+optional
-	Timeout int64 `json:"timeout,omitempty"`
+	Timeout *int64 `json:"timeout,omitempty"`
 }
 
 // KafkaEventSourceNet defines network related properties
 type KafkaEventSourceNet struct {
-	MaxOpenRequests int64 `json:"maxOpenRequests"`
-	KeepAlive       int64 `json:"keepAlive"`
+	MaxOpenRequests *int64 `json:"maxOpenRequests"`
+	KeepAlive       *int64 `json:"keepAlive"`
 
 	//+optional
 	Sasl KafkaEventSourceSpecSasl `json:"sasl,omitempty"`
@@ -110,10 +110,10 @@ type KafkaEventSourceNet struct {
 
 // KafkaEventSourceSpecSasl defines whether or not and how to use Sasl authentication
 type KafkaEventSourceSpecSasl struct {
-	Enable    bool   `json:"enable"`
-	Handshake bool   `json:"handshake"`
-	User      string `json:"user"`
-	Password  string `json:"password"`
+	Enable    *bool   `json:"enable"`
+	Handshake *bool   `json:"handshake"`
+	User      *string `json:"user"`
+	Password  *string `json:"password"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

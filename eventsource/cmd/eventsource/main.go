@@ -89,8 +89,6 @@ func main() {
 				fmt.Fprintf(os.Stdout, "%s/%d/%d\t%s\t%s\n", msg.Topic, msg.Partition, msg.Offset, msg.Key, msg.Value)
 				log.Printf("Received %s", msg.Value)
 
-				log.Println("2")
-
 				var raw map[string]interface{}
 				err := json.Unmarshal(msg.Value, &raw)
 				if err != nil {

@@ -28,11 +28,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
-/**
-* USER ACTION REQUIRED: This is a scaffold file intended for the user to modify with their own Controller
-* business logic.  Delete these comments after modifying this file.*
- */
-
 // Add creates a new KafkaEventSource Controller and adds it to the Manager. The Manager will set fields on the Controller
 // and Start it when the Manager is Started.
 func Add(mgr manager.Manager) error {
@@ -94,7 +89,7 @@ func (r *ReconcileKafkaEventSource) InjectConfig(c *rest.Config) error {
 func (r *ReconcileKafkaEventSource) Reconcile(request reconcile.Request) (reconcile.Result, error) {
 	log.Printf("Reconciling KafkaEventSource %s/%s\n", request.Namespace, request.Name)
 
-	log.Println("Monday 3rd")
+	log.Println("Tuesday 4th")
 
 	// Fetch the KafkaEventSource
 	kafkaEventSource := &sourcesv1alpha1.KafkaEventSource{}
@@ -217,10 +212,8 @@ func deploymentForKafka(kes *sourcesv1alpha1.KafkaEventSource) *appsv1.Deploymen
 			},
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
-					Annotations: map[string]string{
-						"sidecar.istio.io/inject": "true",
-					},
-					Labels: labels,
+					Annotations: annotationsForKafkaEventSource(kes),
+					Labels:      labels,
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{{
@@ -299,6 +292,20 @@ func addBoolIfNotEmpty(evs *[]corev1.EnvVar, yamlKey *bool, evKey string) {
 // belonging to the given memcached CR name.
 func labelsForKafkaEventSource(name string) map[string]string {
 	return map[string]string{"app": "kafkaeventsource", "kafkaeventsource_cr": name}
+}
+
+// labelsForKafkaEventSource returns the labels for selecting the resources
+// belonging to the given memcached CR name.
+func annotationsForKafkaEventSource(kes *sourcesv1alpha1.KafkaEventSource) map[string]string {
+
+	annotations := map[string]string{"sidecar.istio.io/inject": "true"}
+
+	if kes.Spec.ExternalIPRanges != nil {
+		log.Printf("Adding exclude: %s", *kes.Spec.ExternalIPRanges)
+		annotations["traffic.sidecar.istio.io/excludeOutboundIPRanges"] = *kes.Spec.ExternalIPRanges
+	}
+
+	return annotations
 }
 
 // getPodNames returns the pod names of the array of pods passed in

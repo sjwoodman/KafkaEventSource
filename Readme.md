@@ -53,9 +53,9 @@ The sample connects to a [Strimzi](http://strimzi.io/quickstarts/okd/) Kafka Bro
 1. Create a KafkaEventSource and wire it up to a function. Either
 
     ```bash
-    kubectl create -f sample/01-channel.yaml
-    kubectl create -f sample/02-eventsource.yaml
-    kubectl apply -f sample/03-service.yaml -n myproject
+    kubectl create -f sample/01-channel.yaml -n myproject
+    kubectl create -f sample/02-eventsource.yaml -n myproject
+    kubectl create -f sample/03-service.yaml -n myproject
     kubectl create -f sample/subscription.yaml -n myproject
     ```
 
@@ -73,3 +73,7 @@ The sample connects to a [Strimzi](http://strimzi.io/quickstarts/okd/) Kafka Bro
     $ oc exec -it my-cluster-kafka-0 -- bin/kafka-console-producer.sh --broker-list localhost:9092 --topic input
     > test message
     ```
+    
+## Configuration
+
+A description of the available options for configuring the EventSource is avaailable [here](Config.md)

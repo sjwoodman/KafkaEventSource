@@ -262,6 +262,11 @@ func (in *KafkaEventSourceSpec) DeepCopyInto(out *KafkaEventSourceSpec) {
 		*out = new(int32)
 		**out = **in
 	}
+	if in.ExternalIPRanges != nil {
+		in, out := &in.ExternalIPRanges, &out.ExternalIPRanges
+		*out = new(string)
+		**out = **in
+	}
 	return
 }
 

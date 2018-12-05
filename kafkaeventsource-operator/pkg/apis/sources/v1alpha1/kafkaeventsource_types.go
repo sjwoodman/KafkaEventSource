@@ -35,11 +35,15 @@ type KafkaEventSourceSpec struct {
 
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	Bootstrap string `json:"bootstrap"`
-	Topic     string `json:"topic"`
+
+	Topic string `json:"topic"`
+
 	//+optional
 	ConsumerGroupID *string `json:"consumerGroupID"`
+
 	//+optional
 	Net KafkaEventSourceNet `json:"net,omitempty"`
+
 	//+optional
 	Consumer KafkaEventSourceConsumer `json:"consumer,omitempty"`
 
@@ -55,6 +59,9 @@ type KafkaEventSourceSpec struct {
 
 	//+optional
 	Replicas *int32 `json:"replicas,omitempty"`
+
+	//+optional
+	ExternalIPRanges *string `json:"externalIPRanges,omitempty"`
 }
 
 //KafkaEventSourceConsumer defines consumer related properties

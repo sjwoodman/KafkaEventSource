@@ -22,12 +22,10 @@ func main() {
 	eventsourceconfig := eventsourceconfig.GetConfig()
 	log.Printf("BOOTSTRAP_SERVERS: %s", eventsourceconfig.BootStrapServers)
 
-	// init (custom) config, enable errors and notifications
+	//Config
 	config := cluster.NewConfig()
 	config.Consumer.Return.Errors = true
 	config.Group.Return.Notifications = true
-
-	//SASL config
 	config.Net.MaxOpenRequests = int(eventsourceconfig.NetMaxOpenRequests)
 	config.Net.KeepAlive = time.Duration(eventsourceconfig.NetKeepAlive)
 	config.Net.SASL.Enable = eventsourceconfig.NetSaslEnable

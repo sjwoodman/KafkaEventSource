@@ -53,8 +53,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		return err
 	}
 
-	// TODO(user): Modify this to be the types you create that are owned by the primary resource
-	// Watch for changes to secondary resource Pods and requeue the owner KafkaEventSource
+	// Watch for changes to secondary resource Deployments and requeue the owner KafkaEventSource
 	err = c.Watch(&source.Kind{Type: &appsv1.Deployment{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,
 		OwnerType:    &sourcesv1alpha1.KafkaEventSource{},
@@ -84,12 +83,9 @@ func (r *ReconcileKafkaEventSource) InjectConfig(c *rest.Config) error {
 	return err
 }
 
-// Reconcile reads that state of the cluster for a KafkaEventSource object and makes changes based on the state read
-// and what is in the KafkaEventSource.Spec
+// Reconcile contains the main reconcile loop - read the state of the cluster and make changes based on the KafkaEventSource.Spec
 func (r *ReconcileKafkaEventSource) Reconcile(request reconcile.Request) (reconcile.Result, error) {
 	log.Printf("Reconciling KafkaEventSource %s/%s\n", request.Namespace, request.Name)
-
-	log.Println("Tuesday 4th")
 
 	// Fetch the KafkaEventSource
 	kafkaEventSource := &sourcesv1alpha1.KafkaEventSource{}
@@ -107,9 +103,7 @@ func (r *ReconcileKafkaEventSource) Reconcile(request reconcile.Request) (reconc
 	}
 
 	//Resolve the SinkURI
-	sinkURI := "Not found"
-	sinkURI, err = sinks.GetSinkURI(r.dynamicClient, kafkaEventSource.Spec.Sink, kafkaEventSource.Namespace)
-	log.Printf("Resolved SinkURI to %s\n", sinkURI)
+	sinkURI, err := sinks.GetSinkURI(r.dynamicClient, kafkaEventSource.Spec.Sink, kafkaEventSource.Namespace)
 
 	if kafkaEventSource.Status.SinkURI != sinkURI {
 		log.Printf("Setting the SinkURI to %s\n", sinkURI)
@@ -124,7 +118,7 @@ func (r *ReconcileKafkaEventSource) Reconcile(request reconcile.Request) (reconc
 	// Create a new deployment for this EventSource
 	dep := deploymentForKafka(kafkaEventSource)
 
-	// Set KafkaEventSource kafkaEventSource as the owner and controller
+	// Set KafkaEventSource as the owner and controller
 	if err := controllerutil.SetControllerReference(kafkaEventSource, dep, r.scheme); err != nil {
 		return reconcile.Result{}, err
 	}
@@ -133,14 +127,15 @@ func (r *ReconcileKafkaEventSource) Reconcile(request reconcile.Request) (reconc
 	found := &appsv1.Deployment{}
 	err = r.client.Get(context.TODO(), types.NamespacedName{Name: dep.Name, Namespace: dep.Namespace}, found)
 	if err != nil && errors.IsNotFound(err) {
-		log.Printf("Creating a new Pod %s/%s\n", dep.Namespace, dep.Name)
+		//deployment not found
+		log.Printf("Creating a new Deployment %s/%s\n", dep.Namespace, dep.Name)
 		err = r.client.Create(context.TODO(), dep)
 		if err != nil {
 			return reconcile.Result{}, err
 		}
 
-		// Deployment created successfully - don't requeue
-		return reconcile.Result{}, nil
+		// Deployment created successfully - requeue
+		return reconcile.Result{Requeue: true}, nil
 	} else if err != nil {
 		return reconcile.Result{}, err
 	}
@@ -154,6 +149,7 @@ func (r *ReconcileKafkaEventSource) Reconcile(request reconcile.Request) (reconc
 
 	if *found.Spec.Replicas != *size {
 		*found.Spec.Replicas = *size
+		log.Printf("Setting replicas:%d", *size)
 		err = r.client.Update(context.TODO(), found)
 		if err != nil {
 			log.Printf("Failed to update Deployment: %s", found.Name)
@@ -179,6 +175,7 @@ func (r *ReconcileKafkaEventSource) Reconcile(request reconcile.Request) (reconc
 	// Update status.Nodes if needed
 	if !reflect.DeepEqual(podNames, kafkaEventSource.Status.Nodes) {
 		kafkaEventSource.Status.Nodes = podNames
+		log.Printf("Updating EventSource.Status.Nodes")
 		err := r.client.Update(context.TODO(), kafkaEventSource)
 		if err != nil {
 			log.Printf("failed to update KafkaEventSource status:, %s", err)
@@ -191,6 +188,7 @@ func (r *ReconcileKafkaEventSource) Reconcile(request reconcile.Request) (reconc
 	return reconcile.Result{}, nil
 }
 
+// deploymentForKafka generates the Kubernetes deployment object for the EventSource
 func deploymentForKafka(kes *sourcesv1alpha1.KafkaEventSource) *appsv1.Deployment {
 	labels := labelsForKafkaEventSource(kes.Name)
 	replicas := kes.Spec.Replicas
@@ -229,6 +227,7 @@ func deploymentForKafka(kes *sourcesv1alpha1.KafkaEventSource) *appsv1.Deploymen
 	return dep
 }
 
+// getEnvVars adds the Environment Variables to the containers which represent the configuration of the Kafka client
 func getEnvVars(kes *sourcesv1alpha1.KafkaEventSource) []corev1.EnvVar {
 
 	var ev = []corev1.EnvVar{}
@@ -259,6 +258,7 @@ func getEnvVars(kes *sourcesv1alpha1.KafkaEventSource) []corev1.EnvVar {
 func addStrIfNotEmpty(evs *[]corev1.EnvVar, yamlKey *string, evKey string) {
 
 	if yamlKey != nil {
+		log.Printf("Adding configuration %s -> %s", evKey, *yamlKey)
 		*evs = append(*evs, corev1.EnvVar{
 			Name:  evKey,
 			Value: *yamlKey,
@@ -268,8 +268,8 @@ func addStrIfNotEmpty(evs *[]corev1.EnvVar, yamlKey *string, evKey string) {
 
 func addIntIfNotEmpty(evs *[]corev1.EnvVar, yamlKey *int64, evKey string) {
 
-	//todo: Need to deal with settings which *should* be zero
 	if yamlKey != nil {
+		log.Printf("Adding configuration %s -> %d", evKey, *yamlKey)
 		*evs = append(*evs, corev1.EnvVar{
 			Name:  evKey,
 			Value: strconv.FormatInt(*yamlKey, 10),
@@ -279,8 +279,8 @@ func addIntIfNotEmpty(evs *[]corev1.EnvVar, yamlKey *int64, evKey string) {
 
 func addBoolIfNotEmpty(evs *[]corev1.EnvVar, yamlKey *bool, evKey string) {
 
-	//todo: Need to deal with settings that *should* be false
 	if yamlKey != nil {
+		log.Printf("Adding configuration %s -> %t", evKey, *yamlKey)
 		*evs = append(*evs, corev1.EnvVar{
 			Name:  evKey,
 			Value: strconv.FormatBool(*yamlKey),
@@ -289,19 +289,17 @@ func addBoolIfNotEmpty(evs *[]corev1.EnvVar, yamlKey *bool, evKey string) {
 }
 
 // labelsForKafkaEventSource returns the labels for selecting the resources
-// belonging to the given memcached CR name.
 func labelsForKafkaEventSource(name string) map[string]string {
 	return map[string]string{"app": "kafkaeventsource", "kafkaeventsource_cr": name}
 }
 
-// labelsForKafkaEventSource returns the labels for selecting the resources
-// belonging to the given memcached CR name.
+// annotationsForKafkaEventSource returns the labels for selecting the resources
 func annotationsForKafkaEventSource(kes *sourcesv1alpha1.KafkaEventSource) map[string]string {
 
 	annotations := map[string]string{"sidecar.istio.io/inject": "true"}
 
 	if kes.Spec.ExternalIPRanges != nil {
-		log.Printf("Adding exclude: %s", *kes.Spec.ExternalIPRanges)
+		log.Printf("Adding Istio exclude: %s", *kes.Spec.ExternalIPRanges)
 		annotations["traffic.sidecar.istio.io/excludeOutboundIPRanges"] = *kes.Spec.ExternalIPRanges
 	}
 

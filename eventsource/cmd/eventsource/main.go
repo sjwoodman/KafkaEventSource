@@ -108,7 +108,7 @@ func cloudEventsContext(bootstrap string, topic string) *cloudevents.EventContex
 	return &cloudevents.EventContext{
 		// Events are themselves object and have a unique UUID. Could also have used the UID
 		CloudEventsVersion: cloudevents.CloudEventsVersion,
-		EventType:          "dev.knative.source.kafka",
+		EventType:          "dev.knative.eventing.kafka",
 		EventID:            string(uuid.New().String()),
 		Source:             bootstrap + "/" + topic,
 		EventTime:          time.Now(),

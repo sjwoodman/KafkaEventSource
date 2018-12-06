@@ -39,7 +39,10 @@ type KafkaEventSourceSpec struct {
 	Topic string `json:"topic"`
 
 	//+optional
-	ConsumerGroupID *string `json:"consumerGroupID"`
+	KafkaVersion *string `json:"kafkaVersion,omitempty"`
+
+	//+optional
+	ConsumerGroupID *string `json:"consumerGroupID,omitempty"`
 
 	//+optional
 	Net KafkaEventSourceNet `json:"net,omitempty"`

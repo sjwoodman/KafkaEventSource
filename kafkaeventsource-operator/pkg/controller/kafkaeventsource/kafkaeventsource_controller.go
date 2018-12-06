@@ -234,6 +234,7 @@ func getEnvVars(kes *sourcesv1alpha1.KafkaEventSource) []corev1.EnvVar {
 
 	addStrIfNotEmpty(&ev, &kes.Spec.Bootstrap, "KAFKA_BOOTSTRAP_SERVERS")
 	addStrIfNotEmpty(&ev, &kes.Spec.Topic, "KAFKA_TOPIC")
+	addStrIfNotEmpty(&ev, kes.Spec.KafkaVersion, "KAFKA_VERSION")
 	addStrIfNotEmpty(&ev, &kes.Status.SinkURI, "TARGET")
 	addStrIfNotEmpty(&ev, kes.Spec.ConsumerGroupID, "CONSUMER_GROUP_ID")
 	addIntIfNotEmpty(&ev, kes.Spec.Net.MaxOpenRequests, "NET_MAX_OPEN_REQUESTS")

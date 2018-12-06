@@ -63,6 +63,7 @@ spec:
   consumerGroupID: group1
   replicas: 1
   externalIPRanges: 128.0.0.1/24  
+  kafkaVersion: 2.0.0
   net:
     maxOpenRequests: 5
     keepAlive: 0

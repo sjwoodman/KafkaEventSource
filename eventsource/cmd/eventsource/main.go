@@ -2,12 +2,11 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"time"
 
 	"github.com/Shopify/sarama"
@@ -40,8 +39,17 @@ func main() {
 	config.ChannelBufferSize = int(eventsourceconfig.ChannelBufferSize)
 	config.Group.Session.Timeout = time.Duration(eventsourceconfig.GroupSessionTimeout)
 
+	kafkaversion, err := sarama.ParseKafkaVersion(eventsourceconfig.KafkaVersion)
+	if err != nil {
+		log.Println("Unsupported Kafka Version. Should be in format 2_0_0_0")
+		log.Printf("Defaulting to minimum supported version: %s", kafkaversion)
+	}
+	log.Printf("Setting Kafka version to: %s", eventsourceconfig.KafkaVersion)
+	config.Version = kafkaversion
+
 	config.Consumer.Offsets.Initial = sarama.OffsetNewest
 	if eventsourceconfig.ConsumerOffsetsInitial == "OffsetOldest" {
+		log.Println("Setting to offsetOldest")
 		config.Consumer.Offsets.Initial = sarama.OffsetOldest
 	}
 
@@ -53,7 +61,12 @@ func main() {
 	// init consumer
 	brokers := []string{eventsourceconfig.BootStrapServers}
 	topics := []string{eventsourceconfig.KafkaTopic}
+
 	consumerGroupID := eventsourceconfig.ConsumerGroupID
+	if consumerGroupID == "" {
+		consumerGroupID = uuid.New().String()
+	}
+	log.Printf("Setting ConsumerGroupID to: %s", consumerGroupID)
 
 	consumer, err := cluster.NewConsumer(brokers, consumerGroupID, topics, config)
 	if err != nil {
@@ -84,15 +97,15 @@ func main() {
 		select {
 		case msg, ok := <-consumer.Messages():
 			if ok {
-				fmt.Fprintf(os.Stdout, "%s/%d/%d\t%s\t%s\n", msg.Topic, msg.Partition, msg.Offset, msg.Key, msg.Value)
+				// fmt.Fprintf(os.Stdout, "%s/%d/%d\t%s\t%s\n", msg.Topic, msg.Partition, msg.Offset, msg.Key, msg.Value)
 				log.Printf("Received %s", msg.Value)
 
 				var raw map[string]interface{}
 				err := json.Unmarshal(msg.Value, &raw)
 				if err != nil {
-					postMessage(eventsourceconfig.BootStrapServers, eventsourceconfig.KafkaTopic, eventsourceconfig.Target, msg.Value)
+					postMessage(msg.Timestamp, eventsourceconfig.KafkaTopic, eventsourceconfig.Target, msg.Partition, msg.Offset, msg.Value)
 				} else {
-					postMessage(eventsourceconfig.BootStrapServers, eventsourceconfig.KafkaTopic, eventsourceconfig.Target, raw)
+					postMessage(msg.Timestamp, eventsourceconfig.KafkaTopic, eventsourceconfig.Target, msg.Partition, msg.Offset, raw)
 				}
 
 				consumer.MarkOffset(msg, "") // mark message as processed
@@ -104,19 +117,19 @@ func main() {
 }
 
 // Creates a CloudEvent Context for a given Kafka ConsumerMessage.
-func cloudEventsContext(bootstrap string, topic string) *cloudevents.EventContext {
+func cloudEventsContext(timestamp time.Time, partition int32, offset int64, topic string) *cloudevents.EventContext {
 	return &cloudevents.EventContext{
 		// Events are themselves object and have a unique UUID. Could also have used the UID
 		CloudEventsVersion: cloudevents.CloudEventsVersion,
 		EventType:          "dev.knative.eventing.kafka",
-		EventID:            string(uuid.New().String()),
-		Source:             bootstrap + "/" + topic,
-		EventTime:          time.Now(),
+		EventID:            "partition:" + strconv.Itoa(int(partition)) + "/offset:" + strconv.FormatInt(offset, 10),
+		Source:             topic,
+		EventTime:          timestamp,
 	}
 }
 
-func postMessage(bootstrap string, topic string, target string, value interface{}) error {
-	ctx := cloudEventsContext(bootstrap, topic)
+func postMessage(timestamp time.Time, topic string, target string, partition int32, offset int64, value interface{}) error {
+	ctx := cloudEventsContext(timestamp, partition, offset, topic)
 
 	log.Printf("Posting to %q", target)
 	// Explicitly using Binary encoding so that Istio, et. al. can better inspect
@@ -135,7 +148,6 @@ func postMessage(bootstrap string, topic string, target string, value interface{
 	}
 	defer resp.Body.Close()
 	log.Printf("response Status: %s", resp.Status)
-	body, _ := ioutil.ReadAll(resp.Body)
-	log.Printf("response Body: %s", string(body))
+
 	return nil
 }

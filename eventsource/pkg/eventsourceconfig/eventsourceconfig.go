@@ -10,6 +10,7 @@ type eventsourceconfig struct {
 	BootStrapServers              string
 	KafkaTopic                    string
 	ConsumerGroupID               string
+	KafkaVersion                  string
 	NetMaxOpenRequests            int64
 	NetKeepAlive                  int64
 	NetSaslEnable                 bool
@@ -35,7 +36,8 @@ func GetConfig() eventsourceconfig {
 	return eventsourceconfig{
 		BootStrapServers:              strings.ToLower(getStrEnv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")),
 		KafkaTopic:                    os.Getenv("KAFKA_TOPIC"),
-		ConsumerGroupID:               getStrEnv("CONSUMER_GROUP_ID", "consumerGroupID"),
+		ConsumerGroupID:               os.Getenv("CONSUMER_GROUP_ID"),
+		KafkaVersion:                  getStrEnv("KAFKA_VERSION", "2.0.0"),
 		NetMaxOpenRequests:            getIntEnv("NET_MAX_OPEN_REQUESTS", 5),
 		NetKeepAlive:                  getIntEnv("NET_KEEPALIVE", 0),
 		NetSaslEnable:                 getBoolEnv("SASL_ENABLE", false),

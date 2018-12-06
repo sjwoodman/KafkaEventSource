@@ -90,9 +90,9 @@ func main() {
 				var raw map[string]interface{}
 				err := json.Unmarshal(msg.Value, &raw)
 				if err != nil {
-					postMessage(eventsourceconfig.Target, msg.Value)
+					postMessage(eventsourceconfig.BootStrapServers, eventsourceconfig.KafkaTopic, eventsourceconfig.Target, msg.Value)
 				} else {
-					postMessage(eventsourceconfig.Target, raw)
+					postMessage(eventsourceconfig.BootStrapServers, eventsourceconfig.KafkaTopic, eventsourceconfig.Target, raw)
 				}
 
 				consumer.MarkOffset(msg, "") // mark message as processed
@@ -104,19 +104,19 @@ func main() {
 }
 
 // Creates a CloudEvent Context for a given Kafka ConsumerMessage.
-func cloudEventsContext() *cloudevents.EventContext {
+func cloudEventsContext(bootstrap string, topic string) *cloudevents.EventContext {
 	return &cloudevents.EventContext{
 		// Events are themselves object and have a unique UUID. Could also have used the UID
 		CloudEventsVersion: cloudevents.CloudEventsVersion,
-		EventType:          "dev.knative.k8s.event",
+		EventType:          "dev.knative.source.kafka",
 		EventID:            string(uuid.New().String()),
-		Source:             "kafka-demo",
+		Source:             bootstrap + "/" + topic,
 		EventTime:          time.Now(),
 	}
 }
 
-func postMessage(target string, value interface{}) error {
-	ctx := cloudEventsContext()
+func postMessage(bootstrap string, topic string, target string, value interface{}) error {
+	ctx := cloudEventsContext(bootstrap, topic)
 
 	log.Printf("Posting to %q", target)
 	// Explicitly using Binary encoding so that Istio, et. al. can better inspect
